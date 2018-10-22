@@ -1,0 +1,8 @@
+---
+- name: Create new Nginx site on Ubuntu and CentOS
+  hosts: all
+  become: yes
+
+  roles:
+    - deploy_nginx_web
+

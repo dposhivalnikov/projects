@@ -1,0 +1,7 @@
+project = "infra-218515"
+public_key_path = "~/.ssh/appuser.pub"
+disk_image = "nginx-base-1538755846"
+ssh_type = "ssh"
+ssh_user = "appuser"
+ssh_agent = "false"
+private_key_ssh = "~/.ssh/appuser"

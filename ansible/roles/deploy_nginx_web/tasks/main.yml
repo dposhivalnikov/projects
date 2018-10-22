@@ -1,0 +1,54 @@
+---
+# tasks file for deploy_nginx_web
+- block :
+
+  - name: Installing Nginx-server on CentOS
+    yum: name=nginx state=present
+
+  - name: Delete default html page on CentOS
+    file: path={{ destin_file_centos }}/index.html state=absent
+
+  - name: State Nginx is started on CentOS
+    service: name=nginx state=started enabled=yes
+
+  - name: Generate html page
+    template: src=index.j2 dest={{ destin_centos }}/index.html mode=0555
+
+  - name: Copy images on CentOS Servers
+    copy: src={{ item }} dest={{ destin_centos }} mode=0555
+    loop:
+      - "gentoo.png"
+      - "ubuntu.png"
+      - "ubuntu_linux.png"
+      - "windows.png"
+    notify:
+      - Restart Nginx on CentOS
+
+  when: ansible_os_family == "RedHat"
+
+- block:
+
+  - name: Installing Nginx-Server on Ubuntu
+    apt: name=nginx state=present
+
+  - name: Delete default html page on Ubuntu
+    file: name={{ destin_file_ubuntu }}/index.html state=absent
+
+  - name: State Nginx is started on Ubuntu
+    service: name=nginx state=started enabled=yes
+
+  - name: Generate html page
+    template: src=index.j2 dest={{ destin_ubuntu }}/index.html mode=0555
+
+  - name: Copy images in Ubuntu Servers
+    copy: src={{ item }} dest={{ destin_ubuntu }} mode=0555
+    loop:
+      - "gentoo.png"
+      - "ubuntu.png"
+      - "ubuntu_linux.png"
+      - "windows.png"
+    notify:
+      - Restart Nginx on Debian
+
+  when: ansible_os_family == "Debian"
+

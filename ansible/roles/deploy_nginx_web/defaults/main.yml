@@ -1,0 +1,6 @@
+---
+# defaults file for deploy_nginx_web
+destin_ubuntu: /var/www/html
+destin_file_centos: /usr/share/nginx/html/index.html
+destin_centos: /usr/share/nginx/html
+destin_file_ubuntu: /usr/share/nginx/html/index.html
