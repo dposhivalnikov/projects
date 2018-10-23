@@ -1,0 +1,12 @@
+[Unit]
+Description={{ cont_name }} Docker Container
+Requires=docker.service
+After=docker.service
+
+[Service]
+Restart=always
+ExecStart=/usr/bin/docker start -a {{ cont_name }}
+ExecStop=/usr/bin/docker stop -t 2 {{ cont_name }}
+
+[Install]
+WantedBy=default.target

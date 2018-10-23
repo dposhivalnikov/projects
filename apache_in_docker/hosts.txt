@@ -1,0 +1,7 @@
+[ubuntu_servers]
+Ubuntu1 ansible_host=35.195.212.4
+Ubuntu2 ansible_host=35.195.116.140
+Ubuntu3 ansible_host=35.228.176.105
+Ubuntu4 ansible_host=35.233.114.4
+
+

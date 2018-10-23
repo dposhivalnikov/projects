@@ -1,0 +1,10 @@
+---
+# vars file for web_apache_in_docker
+image: swapnillinux/apache-php
+cont_name: website
+src_port: 8082
+dest_port: 80
+src_vol: /mnt/www
+dest_vol: /var/www/html
+privileged: true
+

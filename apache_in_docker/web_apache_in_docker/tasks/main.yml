@@ -1,0 +1,120 @@
+---
+# tasks file for web_apache_in_docker
+  - name: ping
+    ping:
+
+  - name: Update cache
+    apt:
+      update_cache: yes  
+      cache_valid_time: 3600
+
+  - name: Installing packages
+    apt:
+      name: "{{ packages }}"
+    vars:
+      packages:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - software-properties-common
+
+  - name: Add Docker’s official GPG key
+    shell: "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -"
+    args:
+      warn: False
+    
+  - name: Add an Apt signing key to a specific keyring file
+    apt_key:
+      id: 0EBFCD88
+
+  - name: Set up repo
+    shell: add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu  $(lsb_release -cs) stable"
+    args:
+      warn: False
+
+  - name: Update cache
+    apt:
+      update_cache: yes
+      cache_valid_time: 3600
+
+  - name: get docker
+    shell: curl -fsSL https://get.docker.com -o get-docker.sh && sh get-docker.sh
+    ignore_errors: yes
+  
+
+  - name: Installing docker-ce & docker-compose
+    apt:
+      name: "{{ packages }}"
+    vars:
+      packages:
+      - docker-ce
+      - docker-compose
+
+  - name: Version of docker && docker-compose
+    shell: docker -v && docker-compose -v
+    register: results
+   
+  - debug:
+      var: results.stdout
+
+  - name: Add the user 'appuser' with a bash shell, appending the group 'docker' to the user's groups
+    user:
+      name: appuser
+      shell: /bin/bash
+      groups: docker
+      append: yes
+
+  - name: pull an image
+    docker_image:
+      name: mariadb
+
+  - name: docker images list
+    shell: docker images
+    register: results
+    
+  - debug:
+      var: results.stdout_lines
+
+  - name: Install python-docker  on Debian based distribution
+    apt: 
+      name: python-docker
+      update_cache: yes
+
+  - name: Create Container
+    docker_container:
+      name: "{{ cont_name }}"
+      image: "{{ image }}"
+      ports:
+         - "{{ src_port }}:{{ dest_port }}"
+      volumes:
+         - "{{ src_vol }}:{{ dest_vol }}"
+      privileged: "{{ privileged }}"
+
+  - name: Generate html page
+    template: src=index.j2 dest=/mnt/www/index.html mode=0555
+
+  - name: Copy images in Ubuntu Servers
+    copy: src={{ item }} dest=/mnt/www/ mode=0555
+    loop:
+      - "gentoo.png"
+      - "ubuntu.png"
+      - "ubuntu_linux.png"
+      - "windows.png"
+
+  - name: Create Systemd Unit File as docker-{{ cont_name }}.service
+    template: src=systemd.j2 dest=/etc/systemd/system/docker-{{ cont_name }}.service
+
+  - name: reload systemd daemon
+    command: systemctl daemon-reload 
+
+  - name: Start & Enable docker-{{ cont_name }} service
+    service:
+      name: docker-{{ cont_name }}
+      state: started
+      enabled: yes
+
+  - name: check container status
+    command: docker ps
+    register: result
+
+  - debug: var=result.stdout
